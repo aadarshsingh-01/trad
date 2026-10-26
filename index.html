@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calc Dashboard</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--tx:#1b1f24;--mu:#5d6773;--bd:#dde1e6;--ac:#1f5eff;--ok:#12803c;--okbg:#e4f5ea;--no:#c0262d;--nobg:#fbe8e9;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14171b;--card:#1d2127;--tx:#e8ebef;--mu:#9aa4b0;--bd:#2f353d;--ac:#6b93ff;--ok:#4cc782;--okbg:#17301f;--no:#ff7b80;--nobg:#3a1c1e;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#14171b;--card:#1d2127;--tx:#e8ebef;--mu:#9aa4b0;--bd:#2f353d;--ac:#6b93ff;--ok:#4cc782;--okbg:#17301f;--no:#ff7b80;--nobg:#3a1c1e;color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--card);z-index:10}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--card);border-bottom:1px solid var(--bd);padding:10px 14px;display:flex;align-items:center;gap:10px;min-height:54px}
+.top h1{font-size:18px;margin:0;flex:1}
+#back{display:none;font-size:15px;padding:8px 12px}
+main{max-width:640px;margin:0 auto;padding:14px}
+.view{display:none}.view.on{display:block}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tile{display:flex;flex-direction:column;justify-content:space-between;text-align:left;min-height:118px;padding:14px;background:var(--card);border:1px solid var(--bd);border-radius:12px;color:var(--tx);cursor:pointer;font:inherit}
+.tile .ic{font-size:26px;line-height:1}
+.tile b{font-size:16px;display:block;margin-top:8px}
+.tile span{font-size:13px;color:var(--mu);line-height:1.35}
+.tile.wide{grid-column:1/-1;background:var(--ac);border-color:var(--ac);color:#fff;min-height:96px}
+.tile.wide span{color:#fff;opacity:.9}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:12px}
+.card h3{margin:0 0 6px;font-size:16px}
+.card p{margin:6px 0}
+.mu{color:var(--mu);font-size:14px}
+button{font:inherit;border:1px solid var(--bd);background:var(--bg);color:var(--tx);padding:9px 14px;border-radius:10px;cursor:pointer;min-height:42px}
+button.on{background:var(--ac);border-color:var(--ac);color:#fff}
+button:focus-visible,input:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.row{display:flex;gap:8px;overflow-x:auto;margin-bottom:10px;padding-bottom:2px}
+.row button{flex:none}
+.big{text-align:center;padding:10px 0 4px}
+.timer{font:700 44px/1 ui-monospace,Menlo,Consolas,monospace;font-variant-numeric:tabular-nums}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;text-align:center;font-size:12px;color:var(--mu);margin-top:10px}
+.stats b{display:block;color:var(--tx);font-size:17px}
+.q{font:700 38px/1.2 ui-monospace,Menlo,Consolas,monospace;text-align:center;margin:14px 0;overflow-wrap:anywhere}
+input{font:600 26px ui-monospace,Menlo,Consolas,monospace;width:100%;padding:12px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx);text-align:center}
+.two{display:grid;grid-template-columns:2fr 1fr;gap:8px;margin-top:10px}
+.two button{min-height:50px;font-size:17px}
+.fb{min-height:48px;margin-top:12px;padding:10px;border-radius:10px;text-align:center;font-weight:600}
+.fb.ok{background:var(--okbg);color:var(--ok)}.fb.no{background:var(--nobg);color:var(--no)}
+.wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border:1px solid var(--bd);padding:7px 9px;text-align:left;vertical-align:top}
+th{background:var(--bg)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;font:14px ui-monospace,Menlo,Consolas,monospace}
+.grid div{border:1px solid var(--bd);border-radius:8px;padding:6px;background:var(--card);text-align:center}
+.grid b{color:var(--ac)}
+ul{margin:6px 0;padding-left:20px}
+.ex{background:var(--bg);border-radius:8px;padding:8px 10px;margin:6px 0;font-size:15px}
+@media (min-width:520px){.grid{grid-template-columns:repeat(5,1fr)}}
+.grid.g6{grid-template-columns:repeat(6,1fr)}.grid.g2{grid-template-columns:1fr 1fr}.grid .sel{background:var(--ac);color:#fff;border-color:var(--ac)}.grid.g6 div{cursor:pointer;padding:9px 0}
+</style>
+</head>
+<body>
+<div class="top"><button id="back" aria-label="Wapas">‹ Back</button><h1 id="ttl">Calc Dashboard</h1></div>
+<main>
+<div class="view on" id="v-home"><div class="tiles" id="tiles"></div></div>
+
+<div class="view" id="v-drill">
+ <div class="card big"><div class="mu">Is question ka time</div><div class="timer" id="t">0.0s</div>
+  <div class="stats"><div><b id="sc">0</b>sahi</div><div><b id="sw">0</b>galat</div><div><b id="sa">–</b>avg</div><div><b id="sb">–</b>best</div><div><b id="st">0</b>aaj</div></div></div>
+ <div class="row" id="ops"></div><div class="row" id="lv"></div>
+ <div class="card"><div class="q" id="q">…</div>
+  <input id="a" type="text" inputmode="numeric" autocomplete="off" placeholder="Answer" aria-label="Answer">
+  <div class="two"><button id="go" class="on">Check</button><button id="sk">Skip</button></div>
+  <div class="fb" id="fb"></div>
+  <p class="mu" style="text-align:center;margin:8px 0 0">Galat hone par Check/Enter dabake agla question.</p>
+  <div style="text-align:center;margin-top:10px"><button id="rs">Reset session</button></div></div>
+</div>
+
+<div class="view" id="v-sec"></div>
+</main>
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+function ex(a){return a.map(function(x){return '<div class="ex">'+x+'</div>'}).join('')}
+function cd(t,p,a){return '<div class="card"><h3>'+t+'</h3>'+(p?'<p>'+p+'</p>':'')+ex(a)+'</div>'}
+function tabs(){return '<div class="card"><h3>Number chuno</h3><div class="grid g6" id="tc"></div></div><div class="card"><h3 id="th"></h3><div class="grid g2" id="tb"></div></div>'+cd('Table yaad karne ke 5 tricks','Bade table ko chhote tables se toddo.',['15 = 10 + 5: 15×7 = 70 + 35 = <b>105</b>','19 = 20 − 1: 19×6 = 120 − 6 = <b>114</b>','25 = ÷4 phir ×100: 25×12 = 12÷4 = 3 → <b>300</b>','12 = 10 + 2: 12×13 = 130 + 26 = <b>156</b>','16 = doubling: 16×8 → 16, 32, 64, <b>128</b>']);}
+function initTabs(){var box=$("tc");for(var n=1;n<=30;n++){(function(n){var d=document.createElement("div");d.textContent=n;d.onclick=function(){showT(n)};box.appendChild(d);})(n);}showT(12);}
+function showT(n){var c=$("tc").children,i,s="";for(i=0;i<c.length;i++)c[i].className=(i+1===n)?"sel":"";$("th").textContent=n+" ka table";for(i=1;i<=20;i++)s+="<div>"+n+" × "+i+" = <b>"+n*i+"</b></div>";$("tb").innerHTML=s;}
+var FT='<div class="card wrap"><table><tr><th>Fraction</th><th>%</th></tr><tr><td>1/2</td><td>50%</td></tr><tr><td>1/3</td><td>33.33%</td></tr><tr><td>1/4</td><td>25%</td></tr><tr><td>1/5</td><td>20%</td></tr><tr><td>1/6</td><td>16.67%</td></tr><tr><td>1/7</td><td>14.28%</td></tr><tr><td>1/8</td><td>12.5%</td></tr><tr><td>1/9</td><td>11.11%</td></tr><tr><td>1/11</td><td>9.09%</td></tr><tr><td>1/12</td><td>8.33%</td></tr><tr><td>1/16</td><td>6.25%</td></tr></table></div>';
+var SEC=[
+{id:"fraction",ic:"%",t:"Fraction ↔ %",s:"Sabse bada weapon",h:cd('Kyun zaroori?','Percentage, profit-loss, DI sab mein aata hai. Cricket ke records ki tarah ye table yaad kar.',[])+FT+cd('5 examples','Jo yaad hai, uske multiples bhi nikal sakta hai.',['480 ka 12.5% = 480÷8 = <b>60</b>','3/7 = 3 × 14.28 = <b>42.84%</b>','630 ka 16.67% = 630÷6 = <b>105</b>','550 ka 9.09% = 550÷11 = <b>50</b>','200 ka 37.5% (3/8) = 3 × 25 = <b>75</b>'])},
+{id:"mult",ic:"×",t:"Multiplication",s:"5 shortcuts, 25 examples",h:
+cd('1. ×5, ×25, ×125','÷2, ÷4, ÷8 karo, phir ×10, ×100, ×1000.',['68×5 → 34 → <b>340</b>','82×5 → 41 → <b>410</b>','36×25 → 9 → <b>900</b>','44×25 → 11 → <b>1100</b>','48×125 → 6 → <b>6000</b>'])+
+cd('2. ×11','Digits ke beech mein unka sum. Carry aaye toh aage jodo.',['53×11 → 5 (5+3) 3 = <b>583</b>','42×11 → 4 (6) 2 = <b>462</b>','78×11 → 7 (15) 8 → <b>858</b>','67×11 → 6 (13) 7 → <b>737</b>','91×11 → 9 (10) 1 → <b>1001</b>'])+
+cd('3. Base 100','100 se kami nikalo, cross-subtract karo, kami ka product peeche (2 digit mein).',['98×97: kami 2, 3 → 95 | 06 = <b>9506</b>','99×96: kami 1, 4 → 95 | 04 = <b>9504</b>','97×94: kami 3, 6 → 91 | 18 = <b>9118</b>','96×92: kami 4, 8 → 88 | 32 = <b>8832</b>','95×98: kami 5, 2 → 93 | 10 = <b>9310</b>'])+
+cd('4. (a+b)(a−b)','Dono numbers beech ke number se barabar doori pe hon toh a² − b².',['52×48 = 2500 − 4 = <b>2496</b>','63×57 = 3600 − 9 = <b>3591</b>','41×39 = 1600 − 1 = <b>1599</b>','74×66 = 4900 − 16 = <b>4884</b>','85×75 = 6400 − 25 = <b>6375</b>'])+
+cd('5. Break-up','Dukaan pe 12 pen × ₹47: pehle 10 ka, phir 2 ka.',['47×12 = 470 + 94 = <b>564</b>','36×14 = 360 + 144 = <b>504</b>','23×15 = 230 + 115 = <b>345</b>','29×18 = 580 − 58 = <b>522</b>','64×9 = 640 − 64 = <b>576</b>'])},
+{id:"add",ic:"+",t:"Addition shortcuts",s:"3 methods, 15 examples",h:
+cd('1. Round-off phir adjust','Ek number ko round karo, jitna badhaya utna ghatao.',['47+38 = 47+40−2 = <b>85</b>','89+56 = 90+56−1 = <b>145</b>','296+137 = 300+137−4 = <b>433</b>','498+275 = 500+275−2 = <b>773</b>','999+678 = 1000+678−1 = <b>1677</b>'])+
+cd('2. Left to right','Bade digits pehle jodo, jaise bill ka hisaab.',['47+38: 70, phir 15 → <b>85</b>','365+427: 700, 80, 12 → <b>792</b>','584+239: 700, 110, 13 → <b>823</b>','678+256: 800, 120, 14 → <b>934</b>','1250+3475: 4000, 725 → <b>4725</b>'])+
+cd('3. Jodi banao','Jo mil ke 10, 100 ya 1000 banaye unhe pehle jodo.',['7+8+3+2 = (7+3)+(8+2) = <b>20</b>','46+27+54 = (46+54)+27 = <b>127</b>','125+380+75 = (125+75)+380 = <b>580</b>','38+19+62+81 = 100+100 = <b>200</b>','250+175+750 = 1000+175 = <b>1175</b>'])},
+{id:"sub",ic:"−",t:"Subtraction shortcuts",s:"3 methods, 15 examples",h:
+cd('1. Round-off phir adjust','Jitna badhaya utna wapas jodo.',['83−38 = 83−40+2 = <b>45</b>','94−59 = 94−60+1 = <b>35</b>','456−198 = 456−200+2 = <b>258</b>','721−299 = 721−300+1 = <b>422</b>','1250−995 = 1250−1000+5 = <b>255</b>'])+
+cd('2. 9 aur 10 ka complement','100, 1000, 10000 se subtract: har digit ko 9 se ghatao, last ko 10 se.',['100−37: 9−3=6, 10−7=3 → <b>63</b>','1000−347: 6, 5, 3 → <b>653</b>','1000−682: 3, 1, 8 → <b>318</b>','1000−425: 5, 7, 5 → <b>575</b>','10000−3456: 6, 5, 4, 4 → <b>6544</b>'])+
+cd('3. Count-up (dukaandaar style)','₹100 diye, saman ₹37 ka. Chhutta: 37 se 40 tak 3, 40 se 100 tak 60.',['100−37: 3 + 60 = <b>63</b>','83−38: 2 + 43 = <b>45</b>','72−49: 1 + 22 = <b>23</b>','500−276: 24 + 200 = <b>224</b>','1200−845: 55 + 300 = <b>355</b>'])},
+{id:"square",ic:"x²",t:"Squaring",s:"3 methods, 15 examples",h:
+cd('1. 5 pe end hone wale','n5² = n × (n+1), peeche 25.',['35² → 3×4 = 12 → <b>1225</b>','45² → 4×5 = 20 → <b>2025</b>','65² → 6×7 = 42 → <b>4225</b>','75² → 7×8 = 56 → <b>5625</b>','95² → 9×10 = 90 → <b>9025</b>'])+
+cd('2. 50 ke paas','50² ± (diff × 100) + diff²',['53² = 2500+300+9 = <b>2809</b>','47² = 2500−300+9 = <b>2209</b>','56² = 2500+600+36 = <b>3136</b>','44² = 2500−600+36 = <b>1936</b>','58² = 2500+800+64 = <b>3364</b>'])+
+cd('3. (a ± b)² expand','Paas ka round number lo.',['62² = 3600+240+4 = <b>3844</b>','71² = 4900+140+1 = <b>5041</b>','39² = 1600−80+1 = <b>1521</b>','98² = 10000−400+4 = <b>9604</b>','103² = 10000+600+9 = <b>10609</b>'])},
+{id:"percent",ic:"％",t:"Percentage tricks",s:"3 methods, 15 examples",h:
+cd('1. Flip trick','x% of y = y% of x. Jo easy ho wahi karo.',['8% of 50 = 50% of 8 = <b>4</b>','25% of 16 = 16% of 25 = <b>4</b>','4% of 75 = 75% of 4 = <b>3</b>','35% of 20 = 20% of 35 = <b>7</b>','12% of 25 = 25% of 12 = <b>3</b>'])+
+cd('2. 10% se banao','10% nikalo, usse baaki jodo ya ghatao.',['18% of 250 = 50 − 5 = <b>45</b>','15% of 360 = 36 + 18 = <b>54</b>','35% of 80 = 24 + 4 = <b>28</b>','22% of 150 = 30 + 3 = <b>33</b>','45% of 200 = 100 − 10 = <b>90</b>'])+
+cd('3. Successive change','a + b + ab/100',['+20%, −20% = 20−20−4 = <b>−4%</b>','+10%, +10% = 10+10+1 = <b>+21%</b>','+50%, −20% = 50−20−10 = <b>+20%</b>','−10%, −10% = −10−10+1 = <b>−19%</b>','+25%, +20% = 25+20+5 = <b>+50%</b>'])},
+{id:"divide",ic:"÷",t:"Division + Divisibility",s:"Rules aur todke divide",h:
+'<div class="card wrap"><h3>Divisibility rules</h3><table><tr><th>By</th><th>Rule</th></tr><tr><td>2, 5, 10</td><td>Last digit dekho</td></tr><tr><td>3, 9</td><td>Digit sum divisible ho</td></tr><tr><td>4 / 8</td><td>Last 2 / 3 digits</td></tr><tr><td>7</td><td>Last digit ×2 ghatao baaki se, repeat</td></tr><tr><td>11</td><td>Alternate digits ke sum ka difference 0 ya 11 ka multiple</td></tr></table></div>'+
+cd('Rules ke 5 examples','',['2448 by 4: last 2 digits 48 → <b>haan</b>','7128 by 9: digit sum 18 → <b>haan</b>','5216 by 8: last 3 digits 216 = 8×27 → <b>haan</b>','343 by 7: 34 − 6 = 28 → <b>haan</b>','1375 by 11: (1+7) − (3+5) = 0 → <b>haan</b>'])+
+cd('Todke divide karo','Bade number ko aise toddo ki table se nikle.',['4872÷24 = 200 + 3 = <b>203</b>','1560÷12 = 100 + 30 = <b>130</b>','2548÷13 = 200 − 4 = <b>196</b>','3375÷15 = 200 + 25 = <b>225</b>','918÷17 = 50 + 4 = <b>54</b>'])},
+{id:"option",ic:"✓",t:"Option elimination",s:"Exact answer ki zaroorat nahi",h:
+cd('Idea','MCQ mein poora answer nahi chahiye. Last digit, digit sum (mod 9) aur andaza dekho, galat options hat jayenge.',['487×63: last digit 7×3 = 21 → <b>1</b>, andaza 500×60 = 30000','38×47: last digit 8×7 = 56 → <b>6</b>, andaza 40×45 = 1800 (sahi: 1786)','1234+5678: last digit 4+8 = 12 → <b>2</b>, andaza 6900 (sahi: 6912)','91×91: last digit <b>1</b>, andaza 90×90 = 8100 (sahi: 8281)','47×23 = 1081? Digit sum: 2 × 5 = 10 → 1, aur 1081 → 10 → 1 → <b>sahi</b>'])},
+{id:"tables",ic:"▤",t:"Tables 1–30",s:"Tap karo, table dekho",h:"TABLES"},
+{id:"sqcu",ic:"▦",t:"Squares + Cubes",s:"1–30 aur 1–15",h:"SQCU"},
+{id:"plan",ic:"☑",t:"Practice plan",s:"Roz 15 min",h:
+'<div class="card"><h3>Plan</h3><ul><li><b>Week 1–2:</b> tables, squares, fraction–% table. Roz 15 min.</li><li><b>Week 3–4:</b> addition, subtraction, multiplication aur squaring shortcuts.</li><li><b>Week 5+:</b> mix drill, hamesha timer ke saath.</li></ul></div><div class="card"><h3>Rules</h3><ul><li>Ek lamba session nahi, roz chhota burst.</li><li>Timer lagake karo, bina timer speed nahi aati.</li><li>Pehle paper pe seekho, phir dimaag mein.</li><li>Galat calculations ki list banao, wahi dobara karo.</li></ul></div>'}
+];
+var ctx={t:0,fn:null};
+function sqcu(){var s="",c="",i;for(i=1;i<=30;i++)s+="<div>"+i+"² <b>"+i*i+"</b></div>";for(i=1;i<=15;i++)c+="<div>"+i+"³ <b>"+i*i*i+"</b></div>";return '<div class="card"><h3>Squares 1–30</h3><div class="grid">'+s+'</div></div><div class="card"><h3>Cubes 1–15</h3><div class="grid">'+c+'</div></div>';}
+var tiles=$("tiles");
+var d=document.createElement("button");d.className="tile wide";d.innerHTML='<div><div class="ic">🧮</div><b>Calculation Drill</b></div><span>Add, Sub, Mul, Div. Random question, timer, answer check.</span>';d.onclick=function(){go("drill")};tiles.appendChild(d);
+SEC.forEach(function(s){var b=document.createElement("button");b.className="tile";b.innerHTML='<div><div class="ic">'+s.ic+'</div><b>'+s.t+'</b></div><span>'+s.s+'</span>';b.onclick=function(){go(s.id)};tiles.appendChild(b);});
+
+var cur=null,t0=0,tick=null,locked=false,op="+",lvl=1,S={c:0,w:0,sum:0,best:null};
+var today=new Date().toISOString().slice(0,10),total=0;
+try{var dd=JSON.parse(localStorage.getItem("calc-day")||"null");if(dd&&dd.day===today)total=dd.n|0;}catch(e){}
+function save(){try{localStorage.setItem("calc-day",JSON.stringify({day:today,n:total}));}catch(e){}}
+function r(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+function gen(){
+ var o=op==="mix"?["+","−","×","÷"][r(0,3)]:op,a,b,c,ans,R;
+ if(o==="+"||o==="−"){R=[[10,99],[100,999],[1000,9999]][lvl-1];a=r(R[0],R[1]);b=r(R[0],R[1]);if(o==="−"&&b>a){c=a;a=b;b=c;}ans=o==="+"?a+b:a-b;}
+ else if(o==="×"){var A=[[12,99],[12,99],[100,999]][lvl-1],B=[[2,19],[12,99],[11,99]][lvl-1];a=r(A[0],A[1]);b=r(B[0],B[1]);ans=a*b;}
+ else{var D=[[2,12],[11,25],[12,99]][lvl-1],Q=[[11,99],[11,99],[100,999]][lvl-1];b=r(D[0],D[1]);c=r(Q[0],Q[1]);a=b*c;ans=c;}
+ return{t:a+" "+o+" "+b,ans:ans};
+}
+function show(t){$("t").textContent=t.toFixed(1)+"s"}
+function next(){
+ cur=gen();locked=false;$("q").textContent=cur.t+" = ?";$("a").value="";$("fb").className="fb";$("fb").textContent="";
+ t0=performance.now();clearInterval(tick);show(0);
+ tick=setInterval(function(){show((performance.now()-t0)/1000)},100);
+}
+function stats(){
+ $("sc").textContent=S.c;$("sw").textContent=S.w;$("st").textContent=total;
+ $("sa").textContent=S.c?(S.sum/S.c).toFixed(1):"–";
+ $("sb").textContent=S.best===null?"–":S.best.toFixed(1);
+}
+function check(){
+ if(locked){next();$("a").focus();return;}
+ var v=$("a").value.trim();if(v==="")return;
+ var t=(performance.now()-t0)/1000;clearInterval(tick);show(t);locked=true;var fb=$("fb");
+ if(parseInt(v,10)===cur.ans){
+  S.c++;S.sum+=t;if(S.best===null||t<S.best)S.best=t;total++;save();
+  fb.className="fb ok";fb.textContent="Sahi! "+t.toFixed(1)+" sec";stats();
+  setTimeout(function(){if(locked&&fb.className==="fb ok"){next();$("a").focus();}},700);
+ }else{S.w++;total++;save();fb.className="fb no";fb.textContent="Galat. Sahi answer: "+cur.ans;stats();}
+}
+function btns(id,items,get,set){
+ var box=$(id);box.innerHTML="";
+ items.forEach(function(it){var b=document.createElement("button");b.textContent=it[1];if(get()===it[0])b.className="on";
+  b.onclick=function(){set(it[0]);btns(id,items,get,set);next();};box.appendChild(b);});
+}
+btns("ops",[["+","+ Add"],["−","− Sub"],["×","× Mul"],["÷","÷ Div"],["mix","Mix"]],function(){return op},function(v){op=v});
+btns("lv",[[1,"Easy"],[2,"Medium"],[3,"Hard"]],function(){return lvl},function(v){lvl=v});
+$("go").onclick=check;$("sk").onclick=function(){next();$("a").focus();};
+$("rs").onclick=function(){S={c:0,w:0,sum:0,best:null};stats();next();};
+$("a").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();check();}});
+
+function go(id){
+ clearInterval(tick);
+ document.querySelectorAll(".view").forEach(function(v){v.className="view"});
+ var title="Calc Dashboard";
+ if(id==="home"){$("v-home").className="view on";$("back").style.display="none";}
+ else if(id==="drill"){$("v-drill").className="view on";title="Calculation Drill";$("back").style.display="block";stats();next();}
+ else{
+  var s=SEC.filter(function(x){return x.id===id})[0];
+  if(!s){return go("home");}
+  $("v-sec").innerHTML=s.h==="SQCU"?sqcu():(s.h==="TABLES"?tabs():s.h);if(s.h==="TABLES")initTabs();$("v-sec").className="view on";title=s.t;$("back").style.display="block";
+ }
+ $("ttl").textContent=title;window.scrollTo(0,0);
+ try{location.hash=id;}catch(e){}
+}
+$("back").onclick=function(){go("home")};
+var h="home";try{h=(location.hash||"").replace("#","")||"home";}catch(e){}
+go(h);
+})();
+</script>
+</body>
+</html>
